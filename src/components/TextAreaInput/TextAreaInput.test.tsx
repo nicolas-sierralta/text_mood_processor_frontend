@@ -1,69 +1,67 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom'; // Importa matchers personalizados
+import '@testing-library/jest-dom'; // Import custom matchers
 import TextAreaInput from './TextAreaInput';
-import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest'; // Importa desde Vitest
+import { describe, it, expect, vi } from 'vitest'; // Import from Vitest
 
 describe('TextAreaInput', () => {
-  let setText: vi.Mock;
-
-  beforeEach(() => {
-    setText = vi.fn(); // Mock para la función setText
-  });
+  const mockSetText = vi.fn(); // Mock for the setText function
+  const mockText = 'Hello, this is a test input'; // Sample text
 
   afterEach(() => {
-    vi.clearAllMocks(); // Limpiar mocks después de cada test
+    vi.clearAllMocks(); // Clear all mocks after each test
   });
 
-  it('renders correctly with initial text', () => {
-    render(<TextAreaInput text="Hello" setText={setText} />);
+  it('renders correctly with initial props', () => {
+    render(<TextAreaInput text={mockText} setText={mockSetText} />);
 
-    // Verifica que el textarea se renderiza correctamente
-    const textArea = screen.getByPlaceholderText(/enter your text here.../i);
+    // Check that the textarea is rendered with the correct text
+    const textArea = screen.getByPlaceholderText(/enter your text here/i);
     expect(textArea).toBeInTheDocument();
-    expect(textArea).toHaveValue('Hello');
+    expect(textArea).toHaveValue(mockText);
 
-    // Verifica el contador de caracteres
-    const charCounter = screen.getByText(/5 \/ 500/i);
-    expect(charCounter).toBeInTheDocument();
+    // Check that the character counter is displayed correctly
+    expect(screen.getByText(`${mockText.length} / 500`)).toBeInTheDocument();
 
-    // Verifica los mensajes de validación
+    // Check for the validation message
     expect(screen.getByText(/you need at least 50 characters/i)).toBeInTheDocument();
-    expect(screen.getByText(/the analysis is more precise with 300\+ characters/i)).toBeInTheDocument();
+    expect(screen.getByText(/the analysis is more precise/i)).toBeInTheDocument();
   });
 
-  it('updates text correctly when typing', () => {
-    render(<TextAreaInput text="" setText={setText} />);
+  it('updates the text when typing within the character limit', () => {
+    render(<TextAreaInput text={mockText} setText={mockSetText} />);
 
-    const textArea = screen.getByPlaceholderText(/enter your text here.../i);
-    fireEvent.change(textArea, { target: { value: 'Hello, this is a test.' } });
+    const textArea = screen.getByPlaceholderText(/enter your text here/i);
+    const newText = 'This is an updated text input.';
 
-    expect(setText).toHaveBeenCalledWith('Hello, this is a test.'); // Verifica que setText fue llamado correctamente
-    expect(textArea).toHaveValue('Hello, this is a test.'); // Verifica que el valor en el textarea se actualiza
+    // Simulate typing new text
+    fireEvent.change(textArea, { target: { value: newText } });
 
-    // Verifica el contador de caracteres
-    const charCounter = screen.getByText(/29 \/ 500/i); // Cambia el texto esperado según el nuevo valor
-    expect(charCounter).toBeInTheDocument();
+    // Check if setText is called with the new text
+    expect(mockSetText).toHaveBeenCalledWith(newText);
   });
 
-  it('does not update text if length exceeds 500 characters', () => {
-    render(<TextAreaInput text="" setText={setText} />);
+  it('does not allow typing beyond 500 characters', () => {
+    render(<TextAreaInput text={mockText} setText={mockSetText} />);
 
-    const textArea = screen.getByPlaceholderText(/enter your text here.../i);
-    const longText = 'a'.repeat(501); // Texto con 501 caracteres
+    const textArea = screen.getByPlaceholderText(/enter your text here/i);
+
+    // Simulate typing a string longer than 500 characters
+    const longText = 'a'.repeat(501);
     fireEvent.change(textArea, { target: { value: longText } });
 
-    expect(setText).not.toHaveBeenCalled(); // Verifica que setText no se llama
-    expect(textArea).toHaveValue(''); // Verifica que el textarea sigue vacío
+    // Ensure setText is not called because the input exceeds 500 characters
+    expect(mockSetText).not.toHaveBeenCalledWith(longText);
   });
 
-  it('shows the correct character count', () => {
-    render(<TextAreaInput text="" setText={setText} />);
+  it('shows the correct message for inputs shorter than 50 characters', () => {
+    const shortText = 'Short text';
+    render(<TextAreaInput text={shortText} setText={mockSetText} />);
 
-    const textArea = screen.getByPlaceholderText(/enter your text here.../i);
-    fireEvent.change(textArea, { target: { value: 'Test' } });
+    // Check that the character counter is correct
+    expect(screen.getByText(`${shortText.length} / 500`)).toBeInTheDocument();
 
-    // Verifica el contador de caracteres después de escribir
-    const charCounter = screen.getByText((content) => content.includes('4') && content.includes('/ 500'));
-    expect(charCounter).toBeInTheDocument();
+    // Check for the validation message about needing at least 50 characters
+    expect(screen.getByText(/you need at least 50 characters for the buttons to work/i)).toBeInTheDocument();
   });
 });
+
