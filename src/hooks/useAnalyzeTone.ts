@@ -8,7 +8,8 @@ import { AnalyzeResult } from '../types';
 const useAnalyzeTone = () => {
   const analyzeTone = async (text: string): Promise<AnalyzeResult | null> => {
     try {
-      const response = await fetch('http://163.172.191.42:8000/api/analyze-tone', {
+      const apiUrl = import.meta.env.VITE_ANALYZE_TONE_URL; // URL desde .env
+      const response = await fetch(`${apiUrl}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -30,3 +31,4 @@ const useAnalyzeTone = () => {
 };
 
 export default useAnalyzeTone;
+
