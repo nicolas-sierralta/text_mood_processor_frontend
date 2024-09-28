@@ -42,7 +42,3 @@ const TextAreaInput: React.FC<TextAreaInputProps> = ({ text, setText }) => {
 };
 
 export default TextAreaInput;
-
-
-
-
