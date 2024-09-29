@@ -34,10 +34,7 @@ jobs:
         run: yarn build  # Comando para construir tu aplicación Vite
 
       - name: Run tests
-        run: yarn test  # Comando para ejecutar las pruebas con Vitest
-
-      - name: Run Lint
-        run: yarn lint  # Linting opcional si lo tienes configurado
+        run: yarn vitest  # Comando para ejecutar las pruebas con Vitest
 
       - name: Cache node_modules
         uses: actions/cache@v3
