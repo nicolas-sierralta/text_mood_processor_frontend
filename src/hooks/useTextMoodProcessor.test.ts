@@ -1,128 +1,117 @@
-import { renderHook, act } from '@testing-library/react-hooks'; // Para trabajar con hooks
-import { describe, it, expect, vi } from 'vitest'; // Vitest
-import useTextMoodProcessor from './useTextMoodProcessor'; // Importamos el hook
+import { renderHook, act } from '@testing-library/react-hooks';
+import { vi } from 'vitest'; // Importa `vi` para hacer el mock
+import useTextMoodProcessor from './useTextMoodProcessor';
+import { useAnalyzeTone, useChangeTone } from '../hooks';
 
-// Mock para la respuesta del servidor
-const mockAnalyzeResponse = {
-  emotions: [{ joy: 0.8, sadness: 0.2 }],
-};
-
-const mockChangeToneResponse = {
-  modifiedText: 'This is the modified text.',
-  tone: 'formal',
-};
+// Mockea los hooks externos con Vitest
+vi.mock('../hooks', () => ({
+  useAnalyzeTone: vi.fn().mockReturnValue({ analyzeTone: vi.fn() }),
+  useChangeTone: vi.fn().mockReturnValue({ changeTone: vi.fn() }),
+}));
 
 describe('useTextMoodProcessor', () => {
   beforeEach(() => {
-    // Reseteamos los mocks antes de cada test
-    vi.clearAllMocks();
+    vi.clearAllMocks(); // Limpia los mocks antes de cada prueba
   });
 
-  it('should analyze tone when text length is >= 50 characters', async () => {
-    // Mockeamos el fetch para análisis del tono
-    global.fetch = vi.fn(() =>
-      Promise.resolve({
-        ok: true,
-        status: 200,
-        statusText: 'OK',
-        json: () => Promise.resolve(mockAnalyzeResponse),
-        headers: new Headers(),
-        redirected: false,
-        url: '',
-        clone: () => ({}),
-        body: null,
-        bodyUsed: false,
-      } as Response)
-    );
+  it('should set the text and selected tone', () => {
+    const { result } = renderHook(() => useTextMoodProcessor());
+
+    act(() => {
+      result.current.setText('Test text');
+      result.current.setSelectedTone('friendly');
+    });
+
+    expect(result.current.text).toBe('Test text');
+    expect(result.current.selectedTone).toBe('friendly');
+  });
+
+  it('should call analyzeTone and set analyzeResult', async () => {
+    const mockAnalyzeTone = vi.fn().mockResolvedValue({ sentiment: 'positive' });
+    (useAnalyzeTone as any).mockReturnValue({ analyzeTone: mockAnalyzeTone });
 
     const { result } = renderHook(() => useTextMoodProcessor());
 
-    // Actualizamos el texto con más de 50 caracteres
+    act(() => {
+      result.current.setText('This is a valid text with more than fifty characters for testing purposes.');
+    });
+
     await act(async () => {
-      result.current.setText('This is a test text that contains more than fifty characters for testing.');
       await result.current.handleAnalyzeTone();
     });
 
-    expect(result.current.analyzeResult).toEqual(mockAnalyzeResponse);
+    expect(mockAnalyzeTone).toHaveBeenCalledWith('This is a valid text with more than fifty characters for testing purposes.');
+    expect(result.current.analyzeResult).toEqual({ sentiment: 'positive' });
+    expect(result.current.changeToneResult).toBeNull();
   });
 
-  it('should not analyze tone when text length is < 50 characters', async () => {
-    // Mockeamos el fetch para análisis del tono
-    global.fetch = vi.fn(() =>
-      Promise.resolve({
-        ok: true,
-        status: 200,
-        statusText: 'OK',
-        json: () => Promise.resolve(mockAnalyzeResponse),
-        headers: new Headers(),
-        redirected: false,
-        url: '',
-        clone: () => ({}),
-        body: null,
-        bodyUsed: false,
-      } as Response)
-    );
+  it('should not call analyzeTone if text is less than 50 characters', async () => {
+    const mockAnalyzeTone = vi.fn();
+    (useAnalyzeTone as any).mockReturnValue({ analyzeTone: mockAnalyzeTone });
 
     const { result } = renderHook(() => useTextMoodProcessor());
 
-    // Actualizamos el texto con menos de 50 caracteres
+    act(() => {
+      result.current.setText('Short text');
+    });
+
     await act(async () => {
-      result.current.setText('Short text.');
       await result.current.handleAnalyzeTone();
     });
 
-    // Verificamos que el resultado no haya sido actualizado
-    expect(result.current.analyzeResult).toBeNull();
+    expect(mockAnalyzeTone).not.toHaveBeenCalled();
   });
 
-  it('should show tone selector when handleChangeTone is called with text >= 50 characters', async () => {
+  it('should show tone selector when handleChangeTone is called', () => {
     const { result } = renderHook(() => useTextMoodProcessor());
 
-    await act(() => {
-      result.current.setText('This is a test text that contains more than fifty characters.');
+    act(() => {
+      result.current.setText('This is a valid text with more than fifty characters for testing purposes.');
+    });
+
+    act(() => {
       result.current.handleChangeTone();
     });
 
     expect(result.current.showToneSelector).toBe(true);
   });
 
-  it('should accept tone change and update changeToneResult', async () => {
-    // Mockeamos el fetch para cambiar el tono
-    global.fetch = vi.fn(() =>
-      Promise.resolve({
-        ok: true,
-        status: 200,
-        statusText: 'OK',
-        json: () => Promise.resolve(mockChangeToneResponse),
-        headers: new Headers(),
-        redirected: false,
-        url: '',
-        clone: () => ({}),
-        body: null,
-        bodyUsed: false,
-      } as Response)
-    );
+  it('should call changeTone and set changeToneResult', async () => {
+    const mockChangeTone = vi.fn().mockResolvedValue({ modifiedText: 'Modified text' });
+    (useChangeTone as any).mockReturnValue({ changeTone: mockChangeTone });
 
     const { result } = renderHook(() => useTextMoodProcessor());
 
+    act(() => {
+      result.current.setText('This is a valid text with more than fifty characters for testing purposes.');
+      result.current.setSelectedTone('friendly');
+    });
+
     await act(async () => {
-      result.current.setText('This is a test text that contains more than fifty characters.');
-      result.current.setSelectedTone('formal');
       await result.current.handleAcceptToneChange();
     });
 
-    expect(result.current.changeToneResult).toEqual(mockChangeToneResponse);
+    expect(mockChangeTone).toHaveBeenCalledWith('This is a valid text with more than fifty characters for testing purposes.', 'friendly');
+    expect(result.current.changeToneResult).toEqual({ modifiedText: 'Modified text' });
+    expect(result.current.analyzeResult).toBeNull();
+    expect(result.current.showToneSelector).toBe(false);
   });
 
-  it('should not accept tone change if no tone is selected', async () => {
+  it('should not call changeTone if no tone is selected', async () => {
+    const mockChangeTone = vi.fn();
+    (useChangeTone as any).mockReturnValue({ changeTone: mockChangeTone });
+
     const { result } = renderHook(() => useTextMoodProcessor());
 
+    act(() => {
+      result.current.setText('This is a valid text with more than fifty characters for testing purposes.');
+    });
+
     await act(async () => {
-      result.current.setText('This is a test text that contains more than fifty characters.');
       await result.current.handleAcceptToneChange();
     });
 
-    expect(result.current.changeToneResult).toBeNull();
+    expect(mockChangeTone).not.toHaveBeenCalled();
   });
 });
 
