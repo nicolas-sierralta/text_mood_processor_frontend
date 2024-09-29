@@ -7,7 +7,7 @@ import {
   AnalyzeResultDisplay,
   ChangeToneResultDisplay,
 } from './components';
-import {useTextMoodProcessor} from './hooks';
+import { useTextMoodProcessor } from './hooks';
 
 /**
  * Main App component that manages text input, tone analysis, and tone change
@@ -30,7 +30,7 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-r from-purple-300 via-blue-200 to-pink-300 flex flex-col justify-between">
       <div className="flex flex-grow justify-center items-center">
-        <div className="container mx-auto p-8 max-w-lg bg-white shadow-2xl rounded-3xl">
+        <div className="container mx-auto p-8 md:p-10 lg:p-12 xl:p-16 max-w-lg md:max-w-xl lg:max-w-2xl bg-white shadow-2xl rounded-3xl">
           <h1 className="text-4xl font-extrabold text-center mb-8 text-gray-700">
             Text Mood Processor
           </h1>
