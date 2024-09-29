@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: self-hosted  # Define que se ejecutará en un runner self-hosted
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'  # Asegúrate de utilizar la versión correcta de Node.js
+
+      - name: Setup environment variables
+        run: |
+          echo "VITE_ANALYZE_TONE_URL=${{ secrets.VITE_ANALYZE_TONE_URL }}" >> $GITHUB_ENV
+          echo "VITE_CHANGE_TONE_URL=${{ secrets.VITE_CHANGE_TONE_URL }}" >> $GITHUB_ENV
+
+      - name: Install dependencies
+        run: yarn install  # Utiliza yarn según tu preferencia
+
+      - name: Run build
+        run: yarn build  # Comando para construir tu aplicación Vite
+
+      - name: Run tests
+        run: yarn test  # Comando para ejecutar las pruebas con Vitest
+
+      - name: Run Lint
+        run: yarn lint  # Linting opcional si lo tienes configurado
+
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules
