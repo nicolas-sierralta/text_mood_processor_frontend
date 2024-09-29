@@ -8,11 +8,15 @@ import {
   ChangeToneResultDisplay,
 } from './components';
 import { useTextMoodProcessor } from './hooks';
+import { injectSpeedInsights } from "@vercel/speed-insights";
+
+
 
 /**
  * Main App component that manages text input, tone analysis, and tone change
  */
 const App: React.FC = () => {
+  injectSpeedInsights();
   const {
     text,
     setText,
@@ -75,7 +79,6 @@ const App: React.FC = () => {
           )}
         </div>
       </div>
-
       <footer className="bg-gray-900 text-white py-4 text-center">
         <p className="text-sm">&copy; 2024 Text Mood Processor. All rights reserved.</p>
       </footer>
