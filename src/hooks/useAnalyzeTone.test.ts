@@ -20,15 +20,6 @@ describe('useAnalyzeTone', () => {
       Promise.resolve({
         ok: true,
         json: () => Promise.resolve(mockResponse),
-        headers: new Headers(),
-        redirected: false,
-        status: 200,
-        statusText: 'OK',
-        type: 'basic',
-        url: '',
-        clone: () => ({}),
-        body: null,
-        bodyUsed: false,
       } as Response)
     );
 
@@ -56,17 +47,11 @@ describe('useAnalyzeTone', () => {
       Promise.resolve({
         ok: false,
         json: () => Promise.resolve({}),
-        headers: new Headers(),
-        redirected: false,
-        status: 500,
-        statusText: 'Internal Server Error',
-        type: 'basic',
-        url: '',
-        clone: () => ({}),
-        body: null,
-        bodyUsed: false,
       } as Response)
     );
+
+    // Espiamos en la consola de errores para evitar que se registre en stderr
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     // Usamos el URL desde el .env
     const apiUrl = import.meta.env.VITE_ANALYZE_TONE_URL;
@@ -84,6 +69,10 @@ describe('useAnalyzeTone', () => {
     // Verificamos que el resultado sea null debido al error
     expect(analyzeResult).toBeNull();
     expect(fetch).toHaveBeenCalledWith(apiUrl, expect.any(Object));
+    expect(consoleSpy).toHaveBeenCalledWith('Failed to analyze tone:', expect.any(Error));
+
+    // Restauramos el console.error
+    consoleSpy.mockRestore();
   });
 
   it('handles network errors correctly', async () => {
@@ -115,4 +104,5 @@ describe('useAnalyzeTone', () => {
     consoleSpy.mockRestore();
   });
 });
+
 

@@ -8,8 +8,6 @@ import { ChangeToneResult } from '../types';
 const useChangeTone = () => {
   const changeTone = async (text: string, target_tone: string): Promise<ChangeToneResult | null> => {
     try {
-      console.log('Payload:', { text, target_tone });
-
       const apiUrl = import.meta.env.VITE_CHANGE_TONE_URL; // URL desde .env
 
       const response = await fetch(`${apiUrl}`, {
@@ -27,7 +25,9 @@ const useChangeTone = () => {
       const result = await response.json();
       return result;
     } catch (error) {
-      console.error('Failed to change tone:', error);
+      // Hacemos un cast del error a 'Error' si sabemos que el error será de tipo Error
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error('Failed to change tone:', errorMessage);
       return null;
     }
   };
@@ -36,4 +36,3 @@ const useChangeTone = () => {
 };
 
 export default useChangeTone;
-

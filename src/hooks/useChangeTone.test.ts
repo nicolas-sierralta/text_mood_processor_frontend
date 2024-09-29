@@ -51,7 +51,7 @@ describe('useChangeTone', () => {
   });
 
   it('returns null and logs error when the fetch fails', async () => {
-    // Mockeamos un fetch que falla simulando un objeto Response completo
+    // Mockeamos el fetch que falla simulando un objeto Response completo
     global.fetch = vi.fn(() =>
       Promise.resolve({
         ok: false,
@@ -67,6 +67,9 @@ describe('useChangeTone', () => {
         bodyUsed: false,
       } as Response)
     );
+
+    // Mockeamos `console.error` para evitar que se imprima en stderr
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     // Usamos el URL desde el .env
     const apiUrl = import.meta.env.VITE_CHANGE_TONE_URL;
@@ -84,6 +87,12 @@ describe('useChangeTone', () => {
     // Verificamos que el resultado sea null debido al error
     expect(changeResult).toBeNull();
     expect(fetch).toHaveBeenCalledWith(apiUrl, expect.any(Object));
+    
+    // Verificamos que el error haya sido registrado pero sin imprimir en stderr
+    expect(consoleSpy).toHaveBeenCalledWith('Failed to change tone:', expect.any(String));
+
+    // Restauramos el `console.error`
+    consoleSpy.mockRestore();
   });
 
   it('handles network errors correctly', async () => {
@@ -108,10 +117,11 @@ describe('useChangeTone', () => {
 
     // Verificamos que el resultado sea null y que el error haya sido registrado en la consola
     expect(changeResult).toBeNull();
-    expect(consoleSpy).toHaveBeenCalledWith('Failed to change tone:', expect.any(Error));
+    expect(consoleSpy).toHaveBeenCalledWith('Failed to change tone:', 'Network error');
     expect(fetch).toHaveBeenCalledWith(apiUrl, expect.any(Object));
 
     // Restauramos el console.error
     consoleSpy.mockRestore();
   });
 });
+
