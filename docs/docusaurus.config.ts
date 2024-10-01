@@ -8,8 +8,8 @@ const config: Config = {
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
-  url: 'https://www.text-mood-processor.live/',
-  baseUrl: '/',
+  url: 'https://nicolas-sierralta.github.io', // Tu usuario de GitHub
+  baseUrl: '/text_mood_processor_frontend/', // El nombre de tu repositorio
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
@@ -25,7 +25,6 @@ const config: Config = {
       {
         docs: {
           sidebarPath: './sidebars.ts',
-          // Remove the "editUrl" field instead of assigning null.
           routeBasePath: '/', // Set the default route to be the docs home
         },
         blog: false, // Disable blog functionality
