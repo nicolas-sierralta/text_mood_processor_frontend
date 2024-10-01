@@ -81,13 +81,13 @@ jobs:
           cd docs
           yarn build
 
-      - name: Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages using SSH
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GIT_USER: nicolas-sierralta
         run: |
           cd docs
-          GIT_USER=nicolas-sierralta USE_SSH=false yarn deploy
+          USE_SSH=true yarn deploy
+
 
 
 
