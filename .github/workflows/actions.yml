@@ -84,9 +84,10 @@ jobs:
       - name: Deploy to GitHub Pages
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GIT_USER: nicolas-sierralta  # Reemplaza con tu nombre de usuario de GitHub
+          GIT_USER: nicolas-sierralta  # Tu usuario de GitHub
         run: |
           cd docs
-          USE_SSH=false yarn deploy
+          GIT_USER=nicolas-sierralta USE_SSH=false yarn deploy -- -r "https://${{ secrets.GITHUB_TOKEN }}@github.com/nicolas-sierralta/text_mood_processor_frontend.git"
+
 
 
