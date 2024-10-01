@@ -87,7 +87,8 @@ jobs:
           GIT_USER: nicolas-sierralta
         run: |
           cd docs
-          GIT_USER=nicolas-sierralta USE_SSH=false yarn deploy
+          USE_SSH=true yarn deploy
+
 
 
 
