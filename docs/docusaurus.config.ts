@@ -9,7 +9,10 @@ const config: Config = {
 
   // Set the production url of your site here
   url: 'https://nicolas-sierralta.github.io', // Tu usuario de GitHub
-  baseUrl: '/text_mood_processor_frontend/', // El nombre de tu repositorio
+  baseUrl: '/text_mood_processor_frontend/', // El nombre de tu repositorio de GitHub
+
+  organizationName: 'nicolas-sierralta', // Añade tu usuario de GitHub aquí
+  projectName: 'text_mood_processor_frontend', // El nombre del repositorio de GitHub
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
