@@ -81,12 +81,14 @@ jobs:
           cd docs
           yarn build
 
-      - name: Deploy to GitHub Pages using SSH
+      - name: Deploy to GitHub Pages
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_USER: nicolas-sierralta
         run: |
           cd docs
-          USE_SSH=true yarn deploy
+          GIT_USER=nicolas-sierralta USE_SSH=false yarn deploy -- -r "https://${{ secrets.GITHUB_TOKEN }}@github.com/nicolas-sierralta/text_mood_processor_frontend.git"
+
 
 
 
