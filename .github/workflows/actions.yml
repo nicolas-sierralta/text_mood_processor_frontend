@@ -87,7 +87,8 @@ jobs:
           GIT_USER: nicolas-sierralta
         run: |
           cd docs
-          GIT_USER=nicolas-sierralta USE_SSH=false yarn deploy -- -r "https://${{ secrets.GITHUB_TOKEN }}@github.com/nicolas-sierralta/text_mood_processor_frontend.git"
+          GIT_USER=nicolas-sierralta USE_SSH=false yarn deploy
+
 
 
 
