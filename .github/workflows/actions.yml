@@ -71,14 +71,23 @@ jobs:
         with:
           node-version: '18'
 
+      - name: Navigate to Docusaurus directory
+        run: cd docs # Cambia 'docs' por el directorio donde resides tu documentación si es diferente
+
       - name: Install dependencies
-        run: yarn install
+        run: |
+          cd docs # Asegúrate de estar en el directorio correcto de Docusaurus
+          yarn install
 
       - name: Build Docusaurus site
-        run: yarn build
+        run: |
+          cd docs
+          yarn build
 
       - name: Deploy to GitHub Pages
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          cd docs
           USE_SSH=false yarn deploy
+
