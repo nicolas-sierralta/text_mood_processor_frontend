@@ -1,0 +1,99 @@
+name: CI/CD Workflow
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build-and-test:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Setup environment variables
+        run: |
+          echo "VITE_ANALYZE_TONE_URL=${{ secrets.VITE_ANALYZE_TONE_URL }}" >> $GITHUB_ENV
+          echo "VITE_CHANGE_TONE_URL=${{ secrets.VITE_CHANGE_TONE_URL }}" >> $GITHUB_ENV
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Run build
+        run: yarn build
+
+      - name: Run tests
+        run: yarn vitest
+
+  deploy-vercel:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Setup environment variables
+        run: |
+          echo "VITE_ANALYZE_TONE_URL=${{ secrets.VITE_ANALYZE_TONE_URL }}" >> $GITHUB_ENV
+          echo "VITE_CHANGE_TONE_URL=${{ secrets.VITE_CHANGE_TONE_URL }}" >> $GITHUB_ENV
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Run build
+        run: yarn build
+
+      - name: Deploy to Vercel
+        run: npx vercel --prod --token ${{ secrets.VERCEL_TOKEN }} --yes
+
+  deploy-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18' # Usa Node.js 18
+
+      - name: Install dependencies
+        run: |
+          cd docs
+          yarn install # Cambia a docs y usa yarn para instalar
+
+      - name: Build site
+        run: |
+          cd docs
+          yarn build # Construye el sitio en el directorio docs
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/build 
+          publish_branch: gh-pages 
+
+
+
+
+
+
+
+
+
